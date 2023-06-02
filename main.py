@@ -12,6 +12,7 @@ class Vertex:
         self.id = id
         self.x = x
         self.y = y
+        self.adjacents = [-1]
 
     def get_id(self):
         return self.id
@@ -21,6 +22,9 @@ class Vertex:
     
     def get_y(self):
         return self.y
+
+    def get_adjacents(self):
+        return self.adjacents
     
     def get_cords(self):
         return (self.x, self.y)
@@ -41,13 +45,15 @@ def create_adjacency_matrix(vertex_list):
     matrix = np.array([[0 for x in range(len(vertex_list))] for y in range(len(vertex_list))])
     for i in range(len(vertex_list)):
         for j in range(len(vertex_list)):
-            if j >= i:
+            if i >= j:
                 matrix[i][j] = distance(vertex_list[i], vertex_list[j])
                 matrix[j][i] = matrix[i][j]
+            else:
+                break
     return matrix
 
 def distance(vertex1, vertex2):
-    return math.sqrt((vertex1.get_x() - vertex2.get_x())**2 + (vertex1.get_y() - vertex2.get_y())**2)
+    return math.sqrt((vertex1.x - vertex2.x)**2 + (vertex1.y - vertex2.y)**2)
 
 def print_matrix(matrix):
     for i in range(len(matrix)):
@@ -57,11 +63,11 @@ def print_vertex_list(vertex_list):
     for i in range(len(vertex_list)):
         print(vertex_list[i])
         
-def plot_graph(vertex_list, edges):
-    for i in range(len(edges)):
-        for j in range(len(edges[i])):
-            x = np.array([vertex_list[i].get_x(), vertex_list[edges[i][j]].get_x()])
-            y = np.array([vertex_list[i].get_y(), vertex_list[edges[i][j]].get_y()])    
+def plot_graph(vertex_list):
+    for v in vertex_list:
+        for i in range(len(v.adjacents)):
+            x = np.array([v.x, vertex_list[v.adjacents[i]].x])
+            y = np.array([v.y, vertex_list[v.adjacents[i]].y])    
             plt.plot(x, y, marker='o', markersize=3, mec='r', mfc='r', color='k', linewidth=1)
     plt.show()
 
@@ -76,12 +82,10 @@ def minKey(key, is_visited):
     return index
 
 def prim_mst(vertex_list, graph):
-    edges = [[0] for x in range(len(vertex_list))]
     key = np.array([float('inf') for x in range(len(vertex_list))])
     is_visited = np.array([False for x in range(len(vertex_list))])
 
     key[0] = 0
-    edges[0][0] = vertex_list[0].get_id()
 
     for i in range(len(vertex_list)-1):
         u = minKey(key, is_visited)
@@ -90,17 +94,21 @@ def prim_mst(vertex_list, graph):
         for v in range(len(vertex_list)):
             if graph[u][v] != 0 and is_visited[v] == False and graph[u][v] < key[v]:
                 key[v] = graph[u][v]
-                edges[v][0] = u
-    return edges
+                vertex_list[v].adjacents[0] = u
+    vertex_list[0].adjacents.clear()
+    return vertex_list
 
-def find_odd_vertices(vertex_list, mst_edges):
+def fill_edges(vertex_list):
+    for i in range(len(vertex_list)):
+        for j in range(len(vertex_list[i].adjacents)):
+            if i not in vertex_list[vertex_list[i].adjacents[j]].adjacents:
+                vertex_list[vertex_list[i].adjacents[j]].adjacents.append(i)
+    return vertex_list
+
+def find_odd_vertices(vertex_list):
     odd_vertices = []
     for i in range(len(vertex_list)):
-        degree = 1
-        for j in range(len(mst_edges)):
-            if mst_edges[j][0] == i:
-                degree += 1
-        if degree % 2 != 0:
+        if len(vertex_list[i].adjacents) % 2 != 0:
             odd_vertices.append(i)
     return odd_vertices
 
@@ -114,17 +122,20 @@ def find_perfect_matching(odd_vertices, matrix):
 
     return list(nx.min_weight_matching(graph))
 
-def generate_multiGraph(mst_edges, perfect_match):
+def generate_multiGraph(vertex_list, perfect_match):
     for i in range(len(perfect_match)):
-        mst_edges[perfect_match[i][0]].append(perfect_match[i][1])
-    return mst_edges
+        vertex_list[perfect_match[i][0]].adjacents.append(perfect_match[i][1])
+        vertex_list[perfect_match[i][1]].adjacents.append(perfect_match[i][0])
+    return vertex_list
     
 vertex_list = create_vertex_list()
-matrix = create_adjacency_matrix(vertex_list)
+matrix = create_adjacency_matrix(vertex_list)   
 
-mst_edges = prim_mst(vertex_list, matrix)
-odd_vertices = find_odd_vertices(vertex_list, mst_edges)
+vertex_list = prim_mst(vertex_list, matrix)
+vertex_list = fill_edges(vertex_list)
+
+odd_vertices = find_odd_vertices(vertex_list)
 perfect_match = find_perfect_matching(odd_vertices, matrix)
-multiGraph = generate_multiGraph(mst_edges, perfect_match)
+vertex_list = generate_multiGraph(vertex_list, perfect_match)
 
-plot_graph(vertex_list, multiGraph)
+plot_graph(vertex_list)
