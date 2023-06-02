@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+import networkx as nx
 
 filename = "input1.txt"
 
@@ -58,9 +59,10 @@ def print_vertex_list(vertex_list):
         
 def plot_graph(vertex_list, edges):
     for i in range(len(edges)):
-        x = np.array([vertex_list[i].get_x(), vertex_list[edges[i][0]].get_x()])
-        y = np.array([vertex_list[i].get_y(), vertex_list[edges[i][0]].get_y()])    
-        plt.plot(x, y, marker='o', markersize=4, mec='r', mfc='r', color='k')
+        for j in range(len(edges[i])):
+            x = np.array([vertex_list[i].get_x(), vertex_list[edges[i][j]].get_x()])
+            y = np.array([vertex_list[i].get_y(), vertex_list[edges[i][j]].get_y()])    
+            plt.plot(x, y, marker='o', markersize=3, mec='r', mfc='r', color='k', linewidth=1)
     plt.show()
 
 def minKey(key, is_visited):
@@ -91,9 +93,38 @@ def prim_mst(vertex_list, graph):
                 edges[v][0] = u
     return edges
 
+def find_odd_vertices(vertex_list, mst_edges):
+    odd_vertices = []
+    for i in range(len(vertex_list)):
+        degree = 1
+        for j in range(len(mst_edges)):
+            if mst_edges[j][0] == i:
+                degree += 1
+        if degree % 2 != 0:
+            odd_vertices.append(i)
+    return odd_vertices
+
+def find_perfect_matching(odd_vertices, matrix):
+    edges = []
+    graph = nx.Graph()
+    for i in range(len(odd_vertices)):
+        for j in range(i):
+            edges.append((odd_vertices[i], odd_vertices[j], matrix[odd_vertices[i]][odd_vertices[j]]))
+    graph.add_weighted_edges_from(edges)
+
+    return list(nx.min_weight_matching(graph))
+
+def generate_multiGraph(mst_edges, perfect_match):
+    for i in range(len(perfect_match)):
+        mst_edges[perfect_match[i][0]].append(perfect_match[i][1])
+    return mst_edges
+    
 vertex_list = create_vertex_list()
 matrix = create_adjacency_matrix(vertex_list)
 
 mst_edges = prim_mst(vertex_list, matrix)
+odd_vertices = find_odd_vertices(vertex_list, mst_edges)
+perfect_match = find_perfect_matching(odd_vertices, matrix)
+multiGraph = generate_multiGraph(mst_edges, perfect_match)
 
-plot_graph(vertex_list, mst_edges)
+plot_graph(vertex_list, multiGraph)
