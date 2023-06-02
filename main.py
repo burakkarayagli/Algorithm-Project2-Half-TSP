@@ -36,9 +36,9 @@ def create_vertex_list():
     vertex_list = []
     with open(filename) as f:
         for line in f:
-            if line[0].isdigit():
-                line = line.split()
-                vertex_list.append(Vertex(int(line[0]), float(line[1]), float(line[2])))
+            line = line.split()
+            vertex_list.append(Vertex(int(line[0]), float(line[1]), float(line[2])))
+            del line
     return vertex_list
 
 def create_adjacency_matrix(vertex_list):
