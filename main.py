@@ -40,7 +40,9 @@ def create_adjacency_matrix(vertex_list):
     matrix = np.array([[0 for x in range(len(vertex_list))] for y in range(len(vertex_list))])
     for i in range(len(vertex_list)):
         for j in range(len(vertex_list)):
-            matrix[i][j] = distance(vertex_list[i], vertex_list[j])
+            if j >= i:
+                matrix[i][j] = distance(vertex_list[i], vertex_list[j])
+                matrix[j][i] = matrix[i][j]
     return matrix
 
 def distance(vertex1, vertex2):
