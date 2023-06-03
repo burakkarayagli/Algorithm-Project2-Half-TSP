@@ -53,7 +53,7 @@ def create_adjacency_matrix(vertex_list):
     return matrix
 
 def distance(vertex1, vertex2):
-    return math.sqrt((vertex1.x - vertex2.x)**2 + (vertex1.y - vertex2.y)**2)
+    return (vertex1.x - vertex2.x)**2 + (vertex1.y - vertex2.y)**2
 
 def print_matrix(matrix):
     for i in range(len(matrix)):
@@ -101,8 +101,9 @@ def prim_mst(vertex_list, graph):
 def fill_edges(vertex_list):
     for i in range(len(vertex_list)):
         for j in range(len(vertex_list[i].adjacents)):
-            if i not in vertex_list[vertex_list[i].adjacents[j]].adjacents:
-                vertex_list[vertex_list[i].adjacents[j]].adjacents.append(i)
+            v = vertex_list[i].adjacents[j]
+            if i not in vertex_list[v].adjacents:
+                vertex_list[v].adjacents.append(i)
     return vertex_list
 
 def find_odd_vertices(vertex_list):
@@ -113,19 +114,20 @@ def find_odd_vertices(vertex_list):
     return odd_vertices
 
 def find_perfect_matching(odd_vertices, matrix):
-    edges = []
     graph = nx.Graph()
     for i in range(len(odd_vertices)):
         for j in range(i):
-            edges.append((odd_vertices[i], odd_vertices[j], matrix[odd_vertices[i]][odd_vertices[j]]))
-    graph.add_weighted_edges_from(edges)
-
-    return list(nx.min_weight_matching(graph))
+            v = odd_vertices[i]
+            u = odd_vertices[j]
+            graph.add_edge(v, u, weight=-1*matrix[v][u])
+    return list(nx.max_weight_matching(graph, maxcardinality=True))
 
 def generate_multiGraph(vertex_list, perfect_match):
     for i in range(len(perfect_match)):
-        vertex_list[perfect_match[i][0]].adjacents.append(perfect_match[i][1])
-        vertex_list[perfect_match[i][1]].adjacents.append(perfect_match[i][0])
+        v = perfect_match[i][0]
+        u = perfect_match[i][1]
+        vertex_list[v].adjacents.append(u)
+        vertex_list[u].adjacents.append(v)
     return vertex_list
     
 vertex_list = create_vertex_list()
@@ -137,5 +139,4 @@ vertex_list = fill_edges(vertex_list)
 odd_vertices = find_odd_vertices(vertex_list)
 perfect_match = find_perfect_matching(odd_vertices, matrix)
 vertex_list = generate_multiGraph(vertex_list, perfect_match)
-
 plot_graph(vertex_list)
