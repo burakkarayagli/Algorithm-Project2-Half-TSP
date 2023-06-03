@@ -85,6 +85,14 @@ def plot_graph(vertex_list, odd_vertices, perfect_match):
         plt.plot(x_p, y_p, ':', color='k', linewidth=1.4)
     plt.show()
 
+def plot_path(path):
+    plt.figure(2)
+    for i in range(len(path)-1):
+        x = [vertex_list[path[i]].x, vertex_list[path[i+1]].x]
+        y = [vertex_list[path[i]].y, vertex_list[path[i+1]].y]
+        plt.plot(x, y, marker='o', markersize=3, mec='r', mfc='r', color='k', linewidth=1)
+    plt.show()
+
 def minKey(key, is_visited):
     min =  float('inf')
     index = -1
@@ -174,3 +182,5 @@ plot_graph(vertex_list, odd_vertices, perfect_match)
 
 vertex_list = generate_multiGraph(vertex_list, perfect_match)
 euler_circuit = find_euler_circuit(vertex_list)
+
+plot_path(euler_circuit)
