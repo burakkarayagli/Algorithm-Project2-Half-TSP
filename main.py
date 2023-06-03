@@ -64,6 +64,8 @@ def print_vertex_list(vertex_list):
         print(vertex_list[i])
         
 def plot_graph(vertex_list, odd_vertices, perfect_match):
+    plt.figure(1)
+
     x = np.array([v.x for v in vertex_list])
     y = np.array([v.y for v in vertex_list])
     x_o = np.array([vertex_list[v].x for v in odd_vertices])
@@ -141,12 +143,29 @@ def generate_multiGraph(vertex_list, perfect_match):
         vertex_list[v].adjacents.append(u)
         vertex_list[u].adjacents.append(v)
     return vertex_list
+
+def find_euler_circuit(vertex_list):
+    path = []
+    stack = []
+    current_vertex = 0
+    stack.append(current_vertex)
+    while len(stack) > 0:
+        if len(vertex_list[current_vertex].adjacents) > 0:
+            stack.append(current_vertex)
+            next_vertex = vertex_list[current_vertex].adjacents[0]
+            vertex_list[current_vertex].adjacents.remove(next_vertex)
+            vertex_list[next_vertex].adjacents.remove(current_vertex)
+            current_vertex = next_vertex
+        else:
+            path.append(current_vertex)
+            current_vertex = stack.pop()
+    return path
     
 vertex_list = create_vertex_list()
 matrix = create_adjacency_matrix(vertex_list)   
 
 vertex_list = prim_mst(vertex_list, matrix)
-vertex_list = fill_edges(vertex_list)
+vertex_list = fill_edges(vertex_list)   
 
 odd_vertices = find_odd_vertices(vertex_list)
 perfect_match = find_perfect_matching(odd_vertices, matrix)
@@ -154,3 +173,4 @@ perfect_match = find_perfect_matching(odd_vertices, matrix)
 plot_graph(vertex_list, odd_vertices, perfect_match)
 
 vertex_list = generate_multiGraph(vertex_list, perfect_match)
+euler_circuit = find_euler_circuit(vertex_list)
