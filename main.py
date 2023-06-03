@@ -169,6 +169,14 @@ def find_euler_circuit(vertex_list):
             current_vertex = stack.pop()
     return path
     
+def euler_to_tsp(euler):
+    tsp_path = []
+    for i in euler:
+        if i not in tsp_path:
+            tsp_path.append(i)
+    tsp_path.append(0)
+    return tsp_path
+
 vertex_list = create_vertex_list()
 matrix = create_adjacency_matrix(vertex_list)   
 
@@ -177,10 +185,9 @@ vertex_list = fill_edges(vertex_list)
 
 odd_vertices = find_odd_vertices(vertex_list)
 perfect_match = find_perfect_matching(odd_vertices, matrix)
-
 plot_graph(vertex_list, odd_vertices, perfect_match)
 
 vertex_list = generate_multiGraph(vertex_list, perfect_match)
 euler_circuit = find_euler_circuit(vertex_list)
-
-plot_path(euler_circuit)
+tsp_path = euler_to_tsp(euler_circuit)
+plot_path(tsp_path)
