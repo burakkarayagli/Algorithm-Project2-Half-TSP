@@ -63,12 +63,24 @@ def print_vertex_list(vertex_list):
     for i in range(len(vertex_list)):
         print(vertex_list[i])
         
-def plot_graph(vertex_list):
+def plot_graph(vertex_list, odd_vertices, perfect_match):
+    x = np.array([v.x for v in vertex_list])
+    y = np.array([v.y for v in vertex_list])
+    x_o = np.array([vertex_list[v].x for v in odd_vertices])
+    y_o = np.array([vertex_list[v].y for v in odd_vertices])
+    plt.scatter(x, y, s=15, c='r')
+    plt.scatter(x_o, y_o, s=15, c='yellow')
+
     for v in vertex_list:
         for i in range(len(v.adjacents)):
-            x = np.array([v.x, vertex_list[v.adjacents[i]].x])
-            y = np.array([v.y, vertex_list[v.adjacents[i]].y])    
-            plt.plot(x, y, marker='o', markersize=3, mec='r', mfc='r', color='k', linewidth=1)
+            x_p = np.array([v.x, vertex_list[v.adjacents[i]].x])
+            y_p = np.array([v.y, vertex_list[v.adjacents[i]].y])    
+            plt.plot(x_p, y_p, color='#2f95dd', linewidth=1.4)
+  
+    for v in perfect_match:
+        x_p = np.array([vertex_list[v[0]].x, vertex_list[v[1]].x])
+        y_p = np.array([vertex_list[v[0]].y, vertex_list[v[1]].y])
+        plt.plot(x_p, y_p, ':', color='k', linewidth=1.4)
     plt.show()
 
 def minKey(key, is_visited):
@@ -138,5 +150,7 @@ vertex_list = fill_edges(vertex_list)
 
 odd_vertices = find_odd_vertices(vertex_list)
 perfect_match = find_perfect_matching(odd_vertices, matrix)
+
+plot_graph(vertex_list, odd_vertices, perfect_match)
+
 vertex_list = generate_multiGraph(vertex_list, perfect_match)
-plot_graph(vertex_list)
