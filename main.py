@@ -199,10 +199,25 @@ def christofides(vertex_list, matrix):
     tsp_path = euler_to_tsp(euler_circuit)
     return tsp_path
 
+def print_tsp(vertex_list, matrix, tsp_path):
+    output_file = open("output.txt", "w")
+
+    total_dist = 0
+    for i in range(len(tsp_path)-1):
+        v = vertex_list[tsp_path[i]].id
+        u = vertex_list[tsp_path[i+1]].id
+        total_dist += round(math.sqrt(matrix[v][u]))
+    output_file.write(str(total_dist) + "\n")
+    
+    for i in range(len(tsp_path)):
+        output_file.write(str(vertex_list[tsp_path[i]].id) + "\n")
+    output_file.close()
+
 vertex_list = create_vertex_list()
 matrix = create_adjacency_matrix(vertex_list)   
 
 tsp_path = christofides(vertex_list, matrix)
 
 plot_path(tsp_path)
+print_tsp(vertex_list, matrix, tsp_path)
 plt.show()
