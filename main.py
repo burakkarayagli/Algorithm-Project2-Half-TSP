@@ -185,19 +185,39 @@ def euler_to_tsp(euler):
     tsp_path.append(0)
     return tsp_path
 
+def christofides(vertex_list, matrix):
+    vertex_list = prim_mst(vertex_list, matrix)
+    vertex_list = fill_edges(vertex_list)
+
+    odd_vertices = find_odd_vertices(vertex_list)
+    perfect_match = find_perfect_matching_greedy(odd_vertices, matrix)
+
+    plot_graph(vertex_list, odd_vertices, perfect_match)
+    
+    vertex_list = generate_multiGraph(vertex_list, perfect_match)
+    euler_circuit = find_euler_circuit(vertex_list)
+    tsp_path = euler_to_tsp(euler_circuit)
+    return tsp_path
+
+def print_tsp(vertex_list, matrix, tsp_path):
+    output_file = open("output.txt", "w")
+
+    total_dist = 0
+    for i in range(len(tsp_path)-1):
+        v = vertex_list[tsp_path[i]].id
+        u = vertex_list[tsp_path[i+1]].id
+        total_dist += round(math.sqrt(matrix[v][u]))
+    output_file.write(str(total_dist) + "\n")
+    
+    for i in range(len(tsp_path)):
+        output_file.write(str(vertex_list[tsp_path[i]].id) + "\n")
+    output_file.close()
+
 vertex_list = create_vertex_list()
 matrix = create_adjacency_matrix(vertex_list)   
 
-vertex_list = prim_mst(vertex_list, matrix)
-vertex_list = fill_edges(vertex_list)   
+tsp_path = christofides(vertex_list, matrix)
 
-odd_vertices = find_odd_vertices(vertex_list)
-perfect_match = find_perfect_matching_greedy(odd_vertices, matrix)
-plot_graph(vertex_list, odd_vertices, perfect_match)
-
-vertex_list = generate_multiGraph(vertex_list, perfect_match)
-euler_circuit = find_euler_circuit(vertex_list)
-tsp_path = euler_to_tsp(euler_circuit)
 plot_path(tsp_path)
-
+print_tsp(vertex_list, matrix, tsp_path)
 plt.show()
