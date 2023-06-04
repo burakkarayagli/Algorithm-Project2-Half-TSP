@@ -133,14 +133,24 @@ def find_odd_vertices(vertex_list):
             odd_vertices.append(i)
     return odd_vertices
 
-def find_perfect_matching(odd_vertices, matrix):
-    graph = nx.Graph()
+def find_perfect_matching_greedy(odd_vertices, matrix):
+    perfect_match = np.array([(0, 0) for x in range(len(odd_vertices))])
+    selected = np.array([0 for x in range(len(odd_vertices))])
+
     for i in range(len(odd_vertices)):
-        for j in range(i):
-            v = odd_vertices[i]
-            u = odd_vertices[j]
-            graph.add_edge(v, u, weight=-1*matrix[v][u])
-    return list(nx.max_weight_matching(graph, maxcardinality=True))
+        if selected[i] == 0:
+            min_dist = float('inf')
+            index = -1
+            for j in range(len(odd_vertices)):
+                v = odd_vertices[i]
+                u = odd_vertices[j]
+                if i != j and matrix[v][u] < min_dist and selected[j] == 0:
+                    index = j
+                    min_dist = matrix[v][u]
+            selected[index] = 1
+            selected[i] = 1
+            perfect_match[i] = (v, odd_vertices[index])
+    return perfect_match   
 
 def generate_multiGraph(vertex_list, perfect_match):
     for i in range(len(perfect_match)):
@@ -182,7 +192,7 @@ vertex_list = prim_mst(vertex_list, matrix)
 vertex_list = fill_edges(vertex_list)   
 
 odd_vertices = find_odd_vertices(vertex_list)
-perfect_match = find_perfect_matching(odd_vertices, matrix)
+perfect_match = find_perfect_matching_greedy(odd_vertices, matrix)
 plot_graph(vertex_list, odd_vertices, perfect_match)
 
 vertex_list = generate_multiGraph(vertex_list, perfect_match)
