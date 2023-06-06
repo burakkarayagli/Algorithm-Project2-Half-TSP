@@ -13,24 +13,6 @@ class Vertex:
         self.y = y
         self.adjacents = [-1]
 
-    def get_id(self):
-        return self.id
-    
-    def get_x(self):
-        return self.x
-    
-    def get_y(self):
-        return self.y
-
-    def get_adjacents(self):
-        return self.adjacents
-    
-    def get_cords(self):
-        return (self.x, self.y)
-    
-    def __str__(self):
-        return str(self.id) + " " + str(self.x) + " " + str(self.y)
-
 def create_vertex_list():
     vertex_list = []
     with open(filename) as f:
@@ -53,15 +35,7 @@ def create_adjacency_matrix(vertex_list):
 
 def distance(vertex1, vertex2):
     return round(math.sqrt((vertex1.x - vertex2.x)**2 + (vertex1.y - vertex2.y)**2))
-
-def print_matrix(matrix):
-    for i in range(len(matrix)):
-        print(matrix[i])
-
-def print_vertex_list(vertex_list):
-    for i in range(len(vertex_list)):
-        print(vertex_list[i])
-        
+      
 def plot_graph(vertex_list, odd_vertices, perfect_match):
     plt.figure(1)
 
