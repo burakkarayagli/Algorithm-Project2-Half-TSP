@@ -1,7 +1,6 @@
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-import networkx as nx
 
 filename = "input1.txt"
 
@@ -53,7 +52,7 @@ def create_adjacency_matrix(vertex_list):
     return matrix
 
 def distance(vertex1, vertex2):
-    return (vertex1.x - vertex2.x)**2 + (vertex1.y - vertex2.y)**2
+    return round(math.sqrt((vertex1.x - vertex2.x)**2 + (vertex1.y - vertex2.y)**2))
 
 def print_matrix(matrix):
     for i in range(len(matrix)):
@@ -84,8 +83,8 @@ def plot_graph(vertex_list, odd_vertices, perfect_match):
         y_p = np.array([vertex_list[v[0]].y, vertex_list[v[1]].y])
         plt.plot(x_p, y_p, ':', color='k', linewidth=1.4)
 
-def plot_path(path):
-    plt.figure(2)
+def plot_path(path, index):
+    plt.figure(index)
     for i in range(len(path)-1):
         x = [vertex_list[path[i]].x, vertex_list[path[i+1]].x]
         y = [vertex_list[path[i]].y, vertex_list[path[i+1]].y]
@@ -199,25 +198,50 @@ def christofides(vertex_list, matrix):
     tsp_path = euler_to_tsp(euler_circuit)
     return tsp_path
 
-def print_tsp(vertex_list, matrix, tsp_path):
+def total_dist(path, matrix):
+    dist = 0
+    for i in range(len(path)-1):
+        dist += matrix[path[i]][path[i+1]]
+    return dist
+
+def two_opt(path, matrix):
+    best_path = path
+    improved = True
+    dist = total_dist(best_path, matrix)
+    const_dist = dist
+    while improved:
+        improved = False
+        for i in range(1, len(path)-2):
+            for j in range(i+1, len(path)):
+                if j-i != 1:
+                    new_path = path[:]
+                    new_path[i:j] = path[j-1:i-1:-1]
+                    new_dist = (const_dist + matrix[new_path[i-1]][new_path[i]] + matrix[new_path[j-1]][new_path[j]] 
+                    - matrix[path[i-1]][path[i]] - matrix[path[j-1]][path[j]])
+                    if new_dist < dist:
+                        best_path = new_path
+                        dist = new_dist
+                        improved = True
+        path = best_path
+        const_dist = dist
+    return best_path
+
+def print_tsp(vertex_list, path):
     output_file = open("output.txt", "w")
 
-    total_dist = 0
-    for i in range(len(tsp_path)-1):
-        v = vertex_list[tsp_path[i]].id
-        u = vertex_list[tsp_path[i+1]].id
-        total_dist += round(math.sqrt(matrix[v][u]))
-    output_file.write(str(total_dist) + "\n")
-    
-    for i in range(len(tsp_path)):
-        output_file.write(str(vertex_list[tsp_path[i]].id) + "\n")
+    output_file.write(str(total_dist(path, matrix)) + "\n")
+    for i in range(len(path)-1):
+        output_file.write(str(vertex_list[path[i]].id) + "\n")
     output_file.close()
 
 vertex_list = create_vertex_list()
 matrix = create_adjacency_matrix(vertex_list)   
 
 tsp_path = christofides(vertex_list, matrix)
+plot_path(tsp_path, 2)
 
-plot_path(tsp_path)
-print_tsp(vertex_list, matrix, tsp_path)
+optimized_path = two_opt(tsp_path, matrix)
+plot_path(optimized_path, 3)
+
+print_tsp(vertex_list, optimized_path)
 plt.show()
