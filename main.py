@@ -2,8 +2,6 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
-filename = "input1.txt"
-
 #vertex class
 #id, x, y
 class Vertex:
@@ -13,7 +11,7 @@ class Vertex:
         self.y = y
         self.adjacents = [-1]
 
-def create_vertex_list():
+def create_vertex_list(filename):
     vertex_list = []
     with open(filename) as f:
         for line in f:
@@ -209,7 +207,9 @@ def print_tsp(vertex_list, path):
         output_file.write(str(vertex_list[path[i]].id) + "\n")
     output_file.close()
 
-vertex_list = create_vertex_list()
+filename = input("Enter the name of the file: ")
+
+vertex_list = create_vertex_list(filename)
 matrix = create_adjacency_matrix(vertex_list)   
 
 tsp_path = christofides(vertex_list, matrix)
