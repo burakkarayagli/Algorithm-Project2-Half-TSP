@@ -20,17 +20,17 @@ def create_vertex_list():
             line = line.split()
             vertex_list.append(Vertex(int(line[0]), float(line[1]), float(line[2])))
             del line
-    return vertex_list
+    return np.array(vertex_list)
 
 def create_adjacency_matrix(vertex_list):
-    matrix = np.array([[0 for x in range(len(vertex_list))] for y in range(len(vertex_list))])
+    n = len(vertex_list)
+    matrix = np.zeros((n,n), dtype=int)
     for i in range(len(vertex_list)):
-        for j in range(len(vertex_list)):
-            if i >= j:
-                matrix[i][j] = distance(vertex_list[i], vertex_list[j])
-                matrix[j][i] = matrix[i][j]
-            else:
-                break
+        row = matrix[i]
+        for j in range(i):
+            dist = distance(vertex_list[i], vertex_list[j])
+            row[j] = dist
+            matrix[j][i] = dist
     return matrix
 
 def distance(vertex1, vertex2):
@@ -104,26 +104,27 @@ def find_odd_vertices(vertex_list):
     for i in range(len(vertex_list)):
         if len(vertex_list[i].adjacents) % 2 != 0:
             odd_vertices.append(i)
-    return odd_vertices
+    return np.array(odd_vertices)
 
 def find_perfect_matching_greedy(odd_vertices, matrix):
-    perfect_match = np.array([(0, 0) for x in range(len(odd_vertices))])
-    selected = np.array([0 for x in range(len(odd_vertices))])
+    perfect_match = []
+    selected = np.zeros(len(odd_vertices))
 
     for i in range(len(odd_vertices)):
         if selected[i] == 0:
             min_dist = float('inf')
             index = -1
+
+            v = odd_vertices[i]
             for j in range(len(odd_vertices)):
-                v = odd_vertices[i]
                 u = odd_vertices[j]
-                if i != j and matrix[v][u] < min_dist and selected[j] == 0:
+                if i != j and selected[j] == 0 and matrix[v][u] < min_dist:
                     index = j
                     min_dist = matrix[v][u]
             selected[index] = 1
             selected[i] = 1
-            perfect_match[i] = (v, odd_vertices[index])
-    return perfect_match   
+            perfect_match.append((v, odd_vertices[index]))
+    return np.array(perfect_match)   
 
 def generate_multiGraph(vertex_list, perfect_match):
     for i in range(len(perfect_match)):
@@ -148,7 +149,7 @@ def find_euler_circuit(vertex_list):
         else:
             path.append(current_vertex)
             current_vertex = stack.pop()
-    return path
+    return np.array(path)
     
 def euler_to_tsp(euler):
     tsp_path = []
@@ -156,7 +157,7 @@ def euler_to_tsp(euler):
         if i not in tsp_path:
             tsp_path.append(i)
     tsp_path.append(0)
-    return tsp_path
+    return np.array(tsp_path)
 
 def christofides(vertex_list, matrix):
     vertex_list = prim_mst(vertex_list, matrix)
@@ -188,8 +189,8 @@ def two_opt(path, matrix):
         for i in range(1, len(path)-2):
             for j in range(i+1, len(path)):
                 if j-i != 1:
-                    new_path = path[:]
-                    new_path[i:j] = path[j-1:i-1:-1]
+                    new_path = np.copy(path)
+                    new_path[i:j] = np.copy(path[j-1:i-1:-1])
                     new_dist = (const_dist + matrix[new_path[i-1]][new_path[i]] + matrix[new_path[j-1]][new_path[j]] 
                     - matrix[path[i-1]][path[i]] - matrix[path[j-1]][path[j]])
                     if new_dist < dist:
