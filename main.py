@@ -177,12 +177,14 @@ def total_dist(path, matrix):
         dist += matrix[path[i]][path[i+1]]
     return dist
 
-def two_opt(path, matrix):
+def two_opt(path, matrix, max_iter=100, mode=0):
     best_path = path
-    improved = True
     dist = total_dist(best_path, matrix)
     const_dist = dist
-    while improved:
+
+    improved = True
+    count = 0
+    while improved and (mode == 0 or (mode == 1 and count < max_iter)):
         improved = False
         for i in range(1, len(path)-2):
             for j in range(i+1, len(path)):
@@ -197,6 +199,7 @@ def two_opt(path, matrix):
                         improved = True
         path = best_path
         const_dist = dist
+        count += 1
     return best_path
 
 def print_tsp(vertex_list, path):
