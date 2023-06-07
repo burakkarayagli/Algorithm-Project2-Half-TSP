@@ -60,17 +60,17 @@ int minKey(int keys[], int isVisited[]);
 vertexPtr primMST(vertexPtr vertices, int** matrix);
 int hasEdge(vertex v, int u);
 vertexPtr fillEdges(vertexPtr vertices);
-short *findOddVertices(vertexPtr vertices, int *oddSize);
-short **greedyPrefectMatc(short* oddVertices, int oddSize, int** matrix);
-void generateMultigraph(vertexPtr vertices, short** match, int matchSize);
+unsigned short *findOddVertices(vertexPtr vertices, int *oddSize);
+unsigned short **greedyPrefectMatc(unsigned short* oddVertices, int oddSize, int** matrix);
+void generateMultigraph(vertexPtr vertices, unsigned short** match, int matchSize);
 void removeAdjacent(vertexPtr vertex, int data);
-short *findEulerCircuit(vertexPtr vertices, int* eulerSize);
-short *eulerToTSP(short* eulerPath, int eulerSize);
-int totalDist(short* tspPath, int** matrix);
-void two_optSwap(short* source, int i, int j, short* dest);
-void copy(short* dest, short* source);
-short* two_opt(short* path, int** matrix, int* totalDist);
-void printOutput(short* tspPath, vertexPtr vertices, int dist);
+unsigned short *findEulerCircuit(vertexPtr vertices, int* eulerSize);
+unsigned short *eulerToTSP(unsigned short* eulerPath, int eulerSize);
+int totalDist(unsigned short* tspPath, int** matrix);
+void two_optSwap(unsigned short* source, int i, int j, unsigned short* dest);
+void copy(unsigned short* dest, unsigned short* source);
+unsigned short* two_opt(unsigned short* path, int** matrix, int* totalDist);
+void printOutput(unsigned short* tspPath, vertexPtr vertices, int dist);
 
 int main() {
     char filename[20];
@@ -84,18 +84,18 @@ int main() {
     vertices = fillEdges(vertices);
 
     int oddSize = 0;
-    short *oddVertices = findOddVertices(vertices, &oddSize);
+    unsigned short *oddVertices = findOddVertices(vertices, &oddSize);
 
     int matchSize = oddSize/2;
-    short **perfectMatch = greedyPrefectMatc(oddVertices, oddSize, matrix);
+    unsigned short **perfectMatch = greedyPrefectMatc(oddVertices, oddSize, matrix);
     generateMultigraph(vertices, perfectMatch, matchSize);
 
     int eulerSize = size;
-    short *euler = findEulerCircuit(vertices, &eulerSize);
-    short *tsp = eulerToTSP(euler, eulerSize);;
+    unsigned short *euler = findEulerCircuit(vertices, &eulerSize);
+    unsigned short *tsp = eulerToTSP(euler, eulerSize);;
     int dist = 0;
 
-    short *optimized = two_opt(tsp, matrix, &dist);
+    unsigned short *optimized = two_opt(tsp, matrix, &dist);
     printOutput(optimized, vertices, dist);
 
     return 0;
@@ -201,15 +201,15 @@ vertexPtr fillEdges(vertexPtr vertices) {
     return vertices;
 }
 
-short *findOddVertices(vertexPtr vertices, int *oddSize) {
+unsigned short *findOddVertices(vertexPtr vertices, int *oddSize) {
     int initalSize = size/4;
-    short *oddVertices = malloc(sizeof(short) * initalSize);
+    unsigned short *oddVertices = malloc(sizeof(unsigned short) * initalSize);
     *oddSize = 0;
     for (int i = 0; i < size; i++) {
         if (vertices[i].adjacentSize % 2 == 1) {
             if (*oddSize == initalSize) {
                 initalSize *= 2;
-                oddVertices = realloc(oddVertices, sizeof(short) * initalSize);
+                oddVertices = realloc(oddVertices, sizeof(unsigned short) * initalSize);
             }
             oddVertices[*oddSize] = i;
             (*oddSize)++;
@@ -218,10 +218,10 @@ short *findOddVertices(vertexPtr vertices, int *oddSize) {
     return oddVertices;
 }
 
-short **greedyPrefectMatc(short* oddVertices, int oddSize, int** matrix) {
-    short **match = malloc(sizeof(short*) * (oddSize/2));
+unsigned short **greedyPrefectMatc(unsigned short* oddVertices, int oddSize, int** matrix) {
+    unsigned short **match = malloc(sizeof(unsigned short*) * (oddSize/2));
     for (int i = 0; i < oddSize/2; i++) {
-        match[i] = malloc(sizeof(short) * 2);
+        match[i] = malloc(sizeof(unsigned short) * 2);
     }
 
     int selected[oddSize];
@@ -254,7 +254,7 @@ short **greedyPrefectMatc(short* oddVertices, int oddSize, int** matrix) {
     return match;
 }
 
-void generateMultigraph(vertexPtr vertices, short** match, int matchSize) {
+void generateMultigraph(vertexPtr vertices, unsigned short** match, int matchSize) {
     for (int i = 0; i < matchSize; i++) {
         int v = match[i][0];
         int u = match[i][1];
@@ -285,8 +285,8 @@ void removeAdjacent(vertexPtr vertex, int data) {
     }
 }
 
-short *findEulerCircuit(vertexPtr vertices, int* eulerSize) {
-    short *path = malloc(sizeof(short) * size);
+unsigned short *findEulerCircuit(vertexPtr vertices, int* eulerSize) {
+    unsigned short *path = malloc(sizeof(unsigned short) * size);
     stackPtr stack = NULL;
 
     int index = 0;
@@ -306,7 +306,7 @@ short *findEulerCircuit(vertexPtr vertices, int* eulerSize) {
             path[index] = current;
             index++;
             if (index == size) {
-                path = realloc(path, sizeof(short) * index*2);
+                path = realloc(path, sizeof(unsigned short) * index*2);
                 *eulerSize = index*2;
             }
             current = pop(&stack);
@@ -315,8 +315,8 @@ short *findEulerCircuit(vertexPtr vertices, int* eulerSize) {
     return path;
 }
 
-short *eulerToTSP(short* eulerPath, int eulerSize) {
-    short *tspPath = malloc(sizeof(short) * (size+1));
+unsigned short *eulerToTSP(unsigned short* eulerPath, int eulerSize) {
+    unsigned short *tspPath = malloc(sizeof(unsigned short) * (size+1));
 
     int index = 1;
     tspPath[0] = eulerPath[0];
@@ -339,7 +339,7 @@ short *eulerToTSP(short* eulerPath, int eulerSize) {
     return tspPath;
 }
 
-int totalDist(short* tspPath, int** matrix) {
+int totalDist(unsigned short* tspPath, int** matrix) {
     int totalDist = 0;
     for (int i = 0; i < size; i++) {
         totalDist += matrix[tspPath[i]][tspPath[i+1]];
@@ -347,7 +347,7 @@ int totalDist(short* tspPath, int** matrix) {
     return totalDist;
 }
 
-void two_optSwap(short* source, int i, int j, short* dest) {
+void two_optSwap(unsigned short* source, int i, int j, unsigned short* dest) {
     for (int k = 0; k < i; k++) {
         dest[k] = source[k];
     }
@@ -359,18 +359,18 @@ void two_optSwap(short* source, int i, int j, short* dest) {
     }
 }
 
-void copy(short* dest, short* source) {
+void copy(unsigned short* dest, unsigned short* source) {
     for (int i = 0; i <= size; i++) {
         dest[i] = source[i];
     }
 }
 
-short* two_opt(short* path, int** matrix, int* distance) {
+unsigned short* two_opt(unsigned short* path, int** matrix, int* distance) {
     clock_t start = clock();
     clock_t end = start;
 
-    short *bestPath = malloc(sizeof(short) * (size+1));
-    short *newPath = malloc(sizeof(short) * (size+1));
+    unsigned short *bestPath = malloc(sizeof(unsigned short) * (size+1));
+    unsigned short *newPath = malloc(sizeof(unsigned short) * (size+1));
     int dist = totalDist(path, matrix);
     int constDist = dist;
 
@@ -379,7 +379,7 @@ short* two_opt(short* path, int** matrix, int* distance) {
         improved = 0;
         for (int i = 1; i < size-2; i++) {
             for (int j = i+1; j < size; j++) {
-                if ((end-start)/CLOCKS_PER_SEC > 6000) {
+                if ((end-start)/CLOCKS_PER_SEC > 600) {
                     *distance = dist;
                     return bestPath;
                 }
@@ -402,7 +402,7 @@ short* two_opt(short* path, int** matrix, int* distance) {
     return bestPath;
 }
 
-void printOutput(short *tspPath, vertexPtr vertices, int dist) {
+void printOutput(unsigned short *tspPath, vertexPtr vertices, int dist) {
     FILE *output = fopen("output.txt", "w");
     fprintf(output, "%d\n", dist);
     for (int i = 0; i < size; i++) {
