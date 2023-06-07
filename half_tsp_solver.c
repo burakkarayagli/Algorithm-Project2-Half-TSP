@@ -74,7 +74,7 @@ unsigned short* two_opt(unsigned short* path, int** matrix, int* totalDist);
 void printOutput(unsigned short* tspPath, vertexPtr vertices, int dist);
 
 int main() {
-    char filename[20];
+    char filename[100];
     printf("Enter file name: ");
     scanf("%s", filename);
 
