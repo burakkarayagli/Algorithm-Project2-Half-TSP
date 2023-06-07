@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <limits.h>
 
 typedef struct stack{
     int data;
@@ -408,4 +409,5 @@ void printOutput(unsigned short *tspPath, vertexPtr vertices, int dist) {
     for (int i = 0; i < size; i++) {
         fprintf(output, "%d\n", vertices[tspPath[i]].id);
     }
+    fclose(output);
 }
