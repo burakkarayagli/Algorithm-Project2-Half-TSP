@@ -60,10 +60,8 @@ for i in range(math.ceil(length_of_input / 2)):
     not_visited.remove(index_)
 
 # print the result to an output file
-if len(file_path) >= 11:
-    fout = open("half-"+file_path[-11:-4]+".txt", "w")
-else:
-    fout = open("output.txt", "a")
+
+fout = open("half-input.txt", "w")
 
 fout.write(str(len(visited)) + "\n")
 for i in range(len(visited)):
