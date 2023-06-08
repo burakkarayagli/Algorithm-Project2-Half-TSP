@@ -371,6 +371,7 @@ unsigned short* two_opt(unsigned short* path, int** matrix, int* distance) {
     clock_t end = start;
 
     unsigned short *bestPath = malloc(sizeof(unsigned short) * (size+1));
+    copy(bestPath, path);
     unsigned short *newPath = malloc(sizeof(unsigned short) * (size+1));
     int dist = totalDist(path, matrix);
     int constDist = dist;
