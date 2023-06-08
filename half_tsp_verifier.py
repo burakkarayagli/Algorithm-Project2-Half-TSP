@@ -1,5 +1,4 @@
 import math, re, sys
-from numpy import *
 
 # usage: python tsp-verifier.py inputfilename solutionfilename
 
