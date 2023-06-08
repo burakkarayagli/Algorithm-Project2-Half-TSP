@@ -76,17 +76,17 @@ unsigned short *eulerToTSP(unsigned short* eulerPath, int eulerSize);
 int totalDist(unsigned short* tspPath, int** matrix);
 void two_optSwap(unsigned short* source, int i, int j, unsigned short* dest);
 void copy(unsigned short* dest, unsigned short* source);
-unsigned short* two_opt(unsigned short* path, int** matrix, int* totalDist);
+unsigned short* two_opt(unsigned short* path, int** matrix, int* totalDist, int maxRuntime);
 void printOutput(unsigned short* tspPath, vertexPtr vertices, int dist);
 
 int main() {
-    // Read filename from user
-    char filename[100];
-    printf("Enter file name: ");
-    scanf("%s", filename);
+    // Read max runtime from user
+    int runtime;
+    printf("Enter max runtime (sec.): ");
+    scanf("%d", &runtime);
 
     // Creating vertices and weigth matrix from the input file
-    vertexPtr vertices = readInput(filename, vertices);
+    vertexPtr vertices = readInput("half-input.txt", vertices);
     int **matrix = createWeightMatrix(vertices);
 
     // Finding MST
@@ -109,7 +109,7 @@ int main() {
     int dist = 0;
 
     // Optimizing the TSP path with 2-opt
-    unsigned short *optimized = two_opt(tsp, matrix, &dist);
+    unsigned short *optimized = two_opt(tsp, matrix, &dist, runtime);
     printOutput(optimized, vertices, dist);
 
     return 0;
@@ -432,7 +432,7 @@ void copy(unsigned short* dest, unsigned short* source) {
 }
 
 // Function for performing the 2-opt algorithm
-unsigned short* two_opt(unsigned short* path, int** matrix, int* distance) {
+unsigned short* two_opt(unsigned short* path, int** matrix, int* distance, int maxRuntime) {
     // Start the timer
     clock_t start = clock();
     clock_t end = start;
@@ -454,7 +454,7 @@ unsigned short* two_opt(unsigned short* path, int** matrix, int* distance) {
             for (int j = i+1; j < size; j++) {
                 // If the time limit is exceeded, return the best path
                 // This is done to ensure that the program does not run for too long
-                if ((end-start)/CLOCKS_PER_SEC > 32400) {
+                if ((end-start)/CLOCKS_PER_SEC > maxRuntime) {
                     *distance = dist;
                     return bestPath;
                 }
@@ -470,8 +470,9 @@ unsigned short* two_opt(unsigned short* path, int** matrix, int* distance) {
                     dist = newDist;
                     improved = 1;
                 }
+                end = clock();
             }
-             end = clock();
+            end = clock();
         }
         copy(path, bestPath);
         constDist = dist;
